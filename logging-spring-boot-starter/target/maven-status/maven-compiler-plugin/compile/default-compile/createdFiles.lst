@@ -1,0 +1,4 @@
+com\ldc\logging\TimeLogAutoConfiguration.class
+META-INF\spring-configuration-metadata.json
+com\ldc\logging\TimeLog.class
+com\ldc\logging\TimeLogProperties.class

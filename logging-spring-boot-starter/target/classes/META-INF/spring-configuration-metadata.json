@@ -1,0 +1,18 @@
+{
+  "groups": [
+    {
+      "name": "time.log",
+      "type": "com.ldc.logging.TimeLogProperties",
+      "sourceType": "com.ldc.logging.TimeLogProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "time.log.enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.ldc.logging.TimeLogProperties",
+      "defaultValue": false
+    }
+  ],
+  "hints": []
+}
