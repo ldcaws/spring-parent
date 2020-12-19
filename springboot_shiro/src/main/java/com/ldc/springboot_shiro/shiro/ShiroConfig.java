@@ -1,5 +1,11 @@
 package com.ldc.springboot_shiro.shiro;
 
+import com.ldc.springboot_shiro.model.Permission;
+import com.ldc.springboot_shiro.model.Role;
+import com.ldc.springboot_shiro.service.DemoService;
+import com.ldc.springboot_shiro.shiro.filter.SecurityLogoutFilter;
+import com.ldc.springboot_shiro.shiro.filter.SecurityPermissionAuthorizationFilter;
+import com.ldc.springboot_shiro.shiro.filter.SecurityRoleAuthorizationFilter;
 import com.ldc.springboot_shiro.shiro.util.ByteSourceSerializer;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
@@ -15,7 +21,10 @@ import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.servlet.Filter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,6 +45,9 @@ public class ShiroConfig {
 
     @Autowired
     private RedisProperties redisProperties;
+
+    @Autowired
+    private DemoService demoService;
 
     /**
      * @description: 开启Shiro-aop注解支持：使用代理方式所以需要开启代码支持
@@ -58,21 +70,49 @@ public class ShiroConfig {
     public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
-        Map<String,String> map = new HashMap<String, String>();
-        // 登出
-        map.put("/logout","logout");
-        // 登录
-        map.put("/login", "anon");
-        // 对所有用户认证
-        map.put("/**","authc");
+        // 自定义过滤器
+        Map<String, Filter> filters = new HashMap<>();
+        // 角色权限校验
+        filters.put("croles", new SecurityRoleAuthorizationFilter());
+        // 接口权限校验
+        filters.put("cperms", new SecurityPermissionAuthorizationFilter());
+        // 用户退出系统
+        filters.put("logout", new SecurityLogoutFilter());
+        shiroFilterFactoryBean.setFilters(filters);
+        // 自定义过滤器链
+        Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
+        // 顺序判断;authc:所有url都必须认证通过才可以访问;anon:所有url都都可以匿名访问
+        filterChainDefinitionMap.put("/static/**", "anon");
+        filterChainDefinitionMap.put("/getVerifyCode", "anon");
+        filterChainDefinitionMap.put("/getSid", "anon");
+        filterChainDefinitionMap.put("/websocket/**", "anon");
+        filterChainDefinitionMap.put("/index.html*", "anon");
+        filterChainDefinitionMap.put("/login", "anon");
+        filterChainDefinitionMap.put("/logout", "logout");
+        List<Permission> permissionList = demoService.getAllRolePermissionList();
+        // 数据库读取所有角色、权限信息，拦截校验
+        for (Permission permission : permissionList) {
+            List<Role> roleList = permission.getRoles();
+            String roleSet = "";
+            for (Role role : roleList) {
+                roleSet += role.getRoleName() + ",";
+            }
+            filterChainDefinitionMap.put(permission.getPermission().startsWith("/") ? permission.getPermission() : "/" + permission.getPermission(),
+                    "authc" + ",cperms[" + permission.getPermission() + "]" + ("".equals(roleSet) ? "" : ",croles[" + roleSet.substring(0, roleSet.length() - 1) + "]"));
+            System.out.println("shiro config: url" +
+                    (permission.getPermission().startsWith("/") ? permission.getPermission() : "/" + permission.getPermission()) +
+                    "===" +
+                    ("authc" + ",cperms[" + permission.getPermission() + "]" + ("".equals(roleSet) ? "" : ",croles[" + roleSet.substring(0, roleSet.length() - 1) + "]")));
+        }
+        filterChainDefinitionMap.put("/**", "authc");
         // 登录
         shiroFilterFactoryBean.setLoginUrl("/login");
         // 首页
         shiroFilterFactoryBean.setSuccessUrl("/index");
         // 错误页面，认证不通过跳转
         shiroFilterFactoryBean.setUnauthorizedUrl("/error");
-        // 将map放入过滤器链
-        shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
+        // 将filterChainDefinitionMap放入过滤器链
+        shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
 
@@ -191,7 +231,7 @@ public class ShiroConfig {
      * @time: 2020/12/16 21:57
      */
     @Bean
-    public ShiroSessionIdGenerator sessionIdGenerator(){
+    public ShiroSessionIdGenerator sessionIdGenerator() {
         return new ShiroSessionIdGenerator();
     }
 

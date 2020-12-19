@@ -1,6 +1,7 @@
 package com.ldc.springboot_shiro.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @description:
@@ -13,7 +14,7 @@ public class Permission implements Serializable {
 
     private Long id;
     private String permission;
-    private Role role;
+    private List<Role> roles;
 
     public Long getId() {
         return id;
@@ -31,11 +32,11 @@ public class Permission implements Serializable {
         this.permission = permission;
     }
 
-    public Role getRole() {
-        return role;
+    public List<Role> getRoles() {
+        return roles;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 }

@@ -25,10 +25,10 @@ public class DemoService {
         // user.setPassword("1");
         Role role = new Role();
         role.setId(1L);
-        role.setRoleName("角色名称");
+        role.setRoleName("admin");
         Permission permission = new Permission();
         permission.setId(1L);
-        permission.setPermission("权限");
+        permission.setPermission("/getUser1");
         List<Permission> permissions = new ArrayList<>();
         permissions.add(permission);
         role.setPermissions(permissions);
@@ -36,5 +36,30 @@ public class DemoService {
         roles.add(role);
         user.setRoles(roles);
         return user;
+    }
+
+    public List<Permission> getAllRolePermissionList() {
+        List<Permission> permissions = new ArrayList<>();
+        Permission permission = new Permission();
+        permission.setId(1L);
+        permission.setPermission("/getUser1");
+        List<Role> roles = new ArrayList<>();
+        Role role = new Role();
+        role.setId(1L);
+        role.setRoleName("admin");
+        roles.add(role);
+        permission.setRoles(roles);
+        permissions.add(permission);
+        Permission permission2 = new Permission();
+        permission2.setId(2L);
+        permission2.setPermission("/getUser2");
+        List<Role> roles2 = new ArrayList<>();
+        Role role2 = new Role();
+        role2.setId(2L);
+        role2.setRoleName("admin");
+        roles2.add(role2);
+        permission2.setRoles(roles2);
+        permissions.add(permission2);
+        return permissions;
     }
 }

@@ -28,4 +28,15 @@ public class DemoController {
         User user = demoService.getUserByName("caocao");
         return ResponseData.ok(user,"查询用户成功");
     }
+
+    @GetMapping("/getUser1")
+    public Object getUser1() {
+        return ResponseData.ok("getUser1");
+    }
+
+    @GetMapping("/getUser2")
+    public Object getUser2() {
+        return ResponseData.ok("getUser2");
+    }
+
 }

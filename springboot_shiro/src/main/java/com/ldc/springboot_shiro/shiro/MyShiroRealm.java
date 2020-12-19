@@ -5,7 +5,6 @@ import com.ldc.springboot_shiro.model.Role;
 import com.ldc.springboot_shiro.model.User;
 import com.ldc.springboot_shiro.service.DemoService;
 import com.ldc.springboot_shiro.shiro.util.ByteSourceUtils;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -35,11 +34,10 @@ public class MyShiroRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
         // 获取当前登录用户信息
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
-        System.out.print(user);
+        // User user = (User) SecurityUtils.getSubject().getPrincipal();
         // 获取当前登录用户信息
         User user2 = (User) principalCollection.getPrimaryPrincipal();
-        // 根据用户名称去数据库查询用户
+        // 根据用户名称去数据库查询用户、角色、权限信息
         User user3 = demoService.getUserByName(user2.getName());
         // 添加角色和权限
         for (Role role : user3.getRoles()) {

@@ -1,15 +1,22 @@
 package com.ldc.springboot_shiro.shiro.filter;
 
+import com.ldc.springboot_shiro.common.IPUtil;
+import com.ldc.springboot_shiro.common.ResponseUtil;
+import com.ldc.springboot_shiro.common.SpringBeanUtil;
+import com.ldc.springboot_shiro.model.Permission;
+import com.ldc.springboot_shiro.service.DemoService;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authz.PermissionsAuthorizationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @description:
@@ -17,12 +24,23 @@ import java.io.IOException;
  * @time: 2020/12/16 22:25
  */
 public class SecurityPermissionAuthorizationFilter extends PermissionsAuthorizationFilter {
+
     private Logger logger = LoggerFactory.getLogger(SecurityPermissionAuthorizationFilter.class);
 
+    @Value("${safe.switch}")
+    private String safe;
+
+    private DemoService demoService;
+
+    /**
+     * @description: 是否允许访问
+     * @author: ldc
+     * @time: 2020/12/19 21:32
+     */
     @Override
-    public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws IOException {
+    public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         Subject subject = this.getSubject(request, response);
-        String[] perms = (String[]) ((String[]) mappedValue);
+        String[] perms = (String[]) mappedValue;
         boolean isPermitted = true;
         if (perms != null && perms.length > 0) {
             if (perms.length == 1) {
@@ -34,36 +52,40 @@ public class SecurityPermissionAuthorizationFilter extends PermissionsAuthorizat
             }
         } else {
             // 若数据库未配置URL，则通过这种方式判断
-            /*permissionService = (PermissionService) SpringBeanUtil.getBean("permissionService");
-            List<SysRolePermission> permissionList = permissionService.getAllRolePermissionList();
+            demoService = (DemoService) SpringBeanUtil.getBean("demoService");
+            List<Permission> permissionList = demoService.getAllRolePermissionList();
             String currentContextPath = ((HttpServletRequest) request).getContextPath();
             String currentReqUrl = ((HttpServletRequest) request).getRequestURI();
             String reqPathInfo = currentReqUrl.replace(currentContextPath, "").replace("//", "/");
             isPermitted = false;
-            for(SysRolePermission permission:permissionList){
-                if (permission.getUrl() != null && permission.getUrl().trim().equals(reqPathInfo)) {
+            for(Permission permission:permissionList){
+                if (permission.getPermission() != null && permission.getPermission().trim().equals(reqPathInfo)) {
                     isPermitted = true;
                 }
-            }*/
+            }
         }
         return isPermitted;
     }
 
+    /**
+     * @description: 不允许访问时的处理
+     * @author: ldc
+     * @time: 2020/12/19 21:32
+     */
     @Override
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws IOException {
-        System.out.println("越权访问-接口");
+        System.out.println("进入url越权访问");
         System.out.println(((HttpServletRequest) request).getRequestURI());
         HttpServletResponse resp = (HttpServletResponse) response;
-        /*String accessKey = AccessKeyUtil.getAesKey((HttpServletRequest) request);
         String ip = IPUtil.getIpAddress((HttpServletRequest) request);
         String url = ((HttpServletRequest) request).getRequestURL() + "";
-        if(ShiroConfig.getSecurityState()) {
-        String json = JSONUtil.object2JSONStr(ResponseData.fail(ResponseCode.SYS_VALIDATE_ExceedAuthorizedAccess.getMsg(), ResponseCode.SYS_VALIDATE_ExceedAuthorizedAccess.getCode()));
-        ResponseUtil.returnResultAjaxByte(resp,json.getBytes("UTF-8"));
+        if("on".equals(safe)) {
+            String json ="url越权访问:" + url;
+            ResponseUtil.returnResultAjaxByte(resp,json.getBytes("UTF-8"));
         }else{
-            ResponseUtil.returnResultAjax(resp, JSONUtil.object2JSONStr(ResponseData.fail(ResponseCode.SYS_VALIDATE_ExceedAuthorizedAccess.getMsg(), ResponseCode.SYS_VALIDATE_ExceedAuthorizedAccess.getCode())), null);
+            String json ="url越权访问:" + url;
+            ResponseUtil.returnResultAjax(resp,json, null);
         }
-        LogManager.getInstance().insertLog(LogConstant.LOG_EVENTTYPE_SYSTEMLOG, ResponseCode.SYS_VALIDATE_ExceedAuthorizedAccess.getMsg(), LogConstant.LOG_OPERATION_TYPE_UNAUTHORIZED, LogConstant.LOG_EVENTLEVEL_HIGH, LogConstant.LOG_OPERATION_RESULT_FAILURE, ip, url);*/
         logger.error("接口权限验证：无【" + ((HttpServletRequest) request).getRequestURI() + "】访问权限");
         return false;
     }
