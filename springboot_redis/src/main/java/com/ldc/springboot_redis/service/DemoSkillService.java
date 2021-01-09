@@ -20,7 +20,7 @@ public class DemoSkillService {
     public void seckill() {
         // 返回锁的value值，供释放锁时候进行判断
         String indentifier = null;
-        indentifier = redisLockService.lockWithTimeout("resource", 5000, 1000);
+        indentifier = redisLockService.lockWithTimeout("resource", 50000, 1000);
         if (indentifier != null) {
             // 获取到锁后才可以进行操作（只有占用厕所，才可以如厕），具体能够有几个操作需要看acquireTimeout、expire
             System.out.println(Thread.currentThread().getName() + "获得了锁");
