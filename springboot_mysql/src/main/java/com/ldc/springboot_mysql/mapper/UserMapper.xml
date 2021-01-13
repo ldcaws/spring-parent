@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ldc.springboot_mysql.mapper.UserMapper">
+
+    <sql id="userColumns">
+        id,
+        name,
+        sex,
+        age
+    </sql>
+
+    <select id="getUserList" resultType="com.ldc.springboot_mysql.model.User">
+        select <include refid="userColumns"/> from s_user
+    </select>
+
+    <select id="getUserById" resultType="com.ldc.springboot_mysql.model.User">
+        select <include refid="userColumns"/> from s_user where id = #{userId}
+    </select>
+
+</mapper>
