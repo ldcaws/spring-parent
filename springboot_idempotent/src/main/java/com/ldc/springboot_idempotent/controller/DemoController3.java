@@ -14,7 +14,7 @@ import java.util.Map;
 @RestController
 public class DemoController3 {
     //缓存ID集合
-    private Map<String,Integer> map = new HashMap<>();
+    private Map<String, Integer> map = new HashMap<>();
 
     @RequestMapping("addUser3")
     public String addUser(String id) {
@@ -32,7 +32,7 @@ public class DemoController3 {
                 return "请求失败";
             }
             //存储ID
-            map.put(id,1);
+            map.put(id, 1);
         }
         //业务代码
         System.out.println("添加用户ID：" + id);

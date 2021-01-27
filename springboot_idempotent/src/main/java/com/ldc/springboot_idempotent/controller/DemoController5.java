@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DemoController5 {
     //最大容量100个，根据LRU算法淘汰数据的Map集合
-    private LRUMap<String,Integer> lruMap = new LRUMap<>(100);
+    private LRUMap<String, Integer> lruMap = new LRUMap<>(100);
 
     @RequestMapping("addUser5")
     public String addUser(String id) {
@@ -28,7 +28,7 @@ public class DemoController5 {
                 return "请求失败";
             }
             //存储ID
-            lruMap.put(id,1);
+            lruMap.put(id, 1);
         }
         //业务代码
         System.out.println("添加用户ID：" + id);

@@ -9,7 +9,7 @@ import org.apache.commons.collections4.map.LRUMap;
  */
 public class IdempotentUtil {
     //根据LRU算法淘汰最近最少使用的数据的Map集合，最大容量100个
-    private static LRUMap<String,Integer> lruMap = new LRUMap<>(100);
+    private static LRUMap<String, Integer> lruMap = new LRUMap<>(100);
 
     /**
      * 幂等性判断
@@ -23,7 +23,7 @@ public class IdempotentUtil {
                 return false;
             }
             //非重复请求，存储ID
-            lruMap.put(id,1);
+            lruMap.put(id, 1);
         }
         return true;
     }
